@@ -8,7 +8,6 @@ const data = [
     "lessons": [
       {
         "id": 1,
-        ref: React.createRef(),
         "name": "React - basics",
         "description": "This course is going to take you through basics of React.",
         "author": "James White",
@@ -18,7 +17,6 @@ const data = [
       },
       {
         "id": 2,
-        ref: React.createRef(),
         "name": "Vue - learn vue in an hour",
         "description": "This course teaches you how to build a vue application in an hour.",
         "author": "Michael Brown",
@@ -28,7 +26,6 @@ const data = [
       },
       {
         "id": 3,
-        ref: React.createRef(),
         "name": "CSS Animations",
         "description": "Learn how to animate anything in CSS",
         "author": "Alan Smith",
@@ -38,7 +35,6 @@ const data = [
       },
       {
         "id": 4,
-        ref: React.createRef(),
         "name": "JS - Zero to hero",
         "description": "Everything you need to know in JS",
         "author": "Sarah Parker",
@@ -53,20 +49,20 @@ const data = [
 class App extends React.Component {
   constructor(props) {
     super(props);
-    this.temp = React.createRef();
     this.state = {
       showData: data[0].lessons,
       sortedDate: false,
       showButton: false,
       showError: false,
       cardTotal: 0,
-      // saveUserName: "",
-      // savePassword: ""
+      cartItems: [],
+      isLogin: false,
+      itemError: false
     }
     this.query = "";
     this.userName = "";
     this.userPassword = "";
-
+    this.tempCartItems = []
   }
 
   handleInputChange = event => {
@@ -130,9 +126,30 @@ class App extends React.Component {
     }
   }
 
-  openModal = () => { 
+  openModal = (data) => {
+    if(this.tempCartItems.length == 0){ 
+      this.tempCartItems.push(data);
+    } else {
+      for(let i =0; i <= this.tempCartItems.length; i++){
+ console.log(i)
+      }
+
+      }
+    
+      this.tempCartItems &&  this.tempCartItems.length &&  this.tempCartItems.map((item) => {
+      if(item.author == this.state.cartItems.author){
+         return false
+      } else {
+        this.setState({
+          cartItems: item
+        })
+      }
+      
+    })
+
     this.setState({
-      showError: false
+      showError: false,
+      itemError: false
     })
     var modal = document.getElementById("myModal");
     modal.style.display = "block";
@@ -146,18 +163,34 @@ class App extends React.Component {
   }
 
   loginSubmit = () => {
-      if (this.inputUserName.value && this.inputPassword.value) {
-      var modal = document.getElementById("myModal");
+    var modal = document.getElementById("myModal");
+
+    //first time this logic will work
+    if (this.inputUserName.value && this.inputPassword.value && this.state.isLogin === false) {
       modal.style.display = "none";
       this.setState({
-        cardTotal: this.state.cardTotal + 1
+        cardTotal: this.state.cardTotal + 1,
+        isLogin: true,
+        cartItems: this.tempCartItems
       })
 
-    } else {
+
+    } else if (this.inputUserName.value && this.inputPassword.value && this.state.isLogin === true) {
+      // if(this.state.cartItems === this.tempCartItems){
+        this.setState({
+          itemError: true
+        })
+      // }
+
+    }
+
+    else {
       this.setState({
         showError: true
       })
     }
+
+    // this.tempCartItems = "";
   }
 
   getUserName = (e) => {
@@ -169,6 +202,9 @@ class App extends React.Component {
   }
 
   render() {
+    // console.log("cart", this.state.cartItems)
+    // console.log("islogin", this.state.isLogin)
+
     return (
       <React.Fragment>
         <input
@@ -194,10 +230,10 @@ class App extends React.Component {
                 {this.state.showData && this.state.showData.map((item, key) => {
                   return (
                     <ShowDetails
-                      // ref={this.temp}
                       item={item}
                       openModal={this.openModal}
                       sortedDate={this.state.sortedDate}
+                      cartItems={this.state.cartItems}
                     />
                   )
                 })}
@@ -208,7 +244,7 @@ class App extends React.Component {
                   item={this.state.showData}
                   openModal={this.openModal}
                   sortedDate={this.state.sortedDate}
-                  onClick={this.getID}
+                  cartItems={this.state.cartItems}
                 />
               </>
             }
@@ -219,6 +255,7 @@ class App extends React.Component {
           <div className="modal-content">
             <span className="close" onClick={this.closeModal}>&times;</span>
             {this.state.showError == true ? <span className="error">Please Enter the User name and Password</span> : ""}<br></br>
+            {this.state.itemError == true ? <span className="error">This item is already added in Cart</span> : ""}<br></br>
             <label className="labelClass"><b>Username</b></label>
             <input ref={el => this.inputUserName = el} type="text" placeholder="Enter Username" id="uname" required onChange={this.getUserName} /><br></br>
 

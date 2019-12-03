@@ -16,15 +16,14 @@ class ShowDetails extends React.Component {
     this.setState({ showButton: false })
   }
 
-  add = () => {
-    // console.log(e.current.props.item.author)
-    this.props.openModal();
+  add = (data) => {
+    this.props.openModal(data);
   }
   render() {
     const item = this.props.item;
     return (
       <>
-        <div id={item.id} /*ref={item.ref}*/ className="showData-container" onMouseEnter={this.showAddButton} onMouseLeave={this.hideButton}>
+        <div id={item.id} className="showData-container" onMouseEnter={this.showAddButton} onMouseLeave={this.hideButton}>
           <div className="show-image">
             <img src={item && item.image} alt={item && item.image} />
           </div>
@@ -37,7 +36,7 @@ class ShowDetails extends React.Component {
           }</span>
           <span>Author - {item && item.author}</span>
           <span>Duration - {item && item.duration}</span>
-          <button id="myBtn" onClick={() => this.add()} className={this.state.showButton == true ? "showButton" : "button"}>Add</button>
+          <button id="myBtn" onClick={() => this.add(this.props.item)} className={this.state.showButton == true ? "showButton" : "button"}>Add</button>
         </div>
       </>
     )
