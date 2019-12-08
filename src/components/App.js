@@ -1,7 +1,8 @@
 import React from 'react';
-import './App.css';
+import '../styles/App.css'
 import ShowDetails from './showDetails';
 import 'font-awesome/css/font-awesome.min.css';
+import { throwStatement, thisExpression } from '@babel/types';
 
 const data = [
   {
@@ -53,25 +54,26 @@ class App extends React.Component {
       showData: data[0].lessons,
       sortedDate: false,
       showButton: false,
+      showRemoveButton: false,
       showError: false,
       cardTotal: 0,
-      cartItems: [],
       isLogin: false,
       itemError: false
     }
     this.query = "";
     this.userName = "";
     this.userPassword = "";
+    this.cartItems = []
     this.tempCartItems = []
   }
 
   handleInputChange = event => {
     let tempQuery = event.target.value;
     this.query = tempQuery;
-    // if (!this.query && this.state.sortedDate === false) {
     if (!this.query) {
       this.setState({
         showData: data[0].lessons,
+        sortedDate: false
       })
     }
   };
@@ -87,13 +89,11 @@ class App extends React.Component {
         }
       })
     } else if (!this.query) {
-      console.log("when it is blank")
       this.setState({
         showData: data[0].lessons
       })
     }
     else {
-      console.log("inside the else")
       this.setState({
         showData: this.state.showData
       })
@@ -118,7 +118,6 @@ class App extends React.Component {
         this.state.showData = yy;
       });
       var sortedActivities = this.state.showData.sort((a, b) => a.publishDate - b.publishDate)
-      console.log("sortedActivities", sortedActivities)
       this.setState({
         sortedDate: true,
         showData: sortedActivities
@@ -126,71 +125,25 @@ class App extends React.Component {
     }
   }
 
-  openModal = (data) => {
-    if(this.tempCartItems.length == 0){ 
-      this.tempCartItems.push(data);
-    } else {
-      for(let i =0; i <= this.tempCartItems.length; i++){
- console.log(i)
-      }
-
-      }
-    
-      this.tempCartItems &&  this.tempCartItems.length &&  this.tempCartItems.map((item) => {
-      if(item.author == this.state.cartItems.author){
-         return false
-      } else {
-        this.setState({
-          cartItems: item
-        })
-      }
-      
-    })
+  openModal = (item, id) => {
+    var modal = document.getElementById("myModal");
+    modal.style.display = "block";
+    this.inputUserName.value = "";
+    this.inputPassword.value = "";
+    this.userName = "";
+    this.userPassword = "";
+    this.saveUserName = "";
+    this.saveUserPassword = ""
 
     this.setState({
       showError: false,
       itemError: false
     })
-    var modal = document.getElementById("myModal");
-    modal.style.display = "block";
-    this.inputUserName.value = "";
-    this.inputPassword.value = "";
   }
 
   closeModal = () => {
     var modal = document.getElementById("myModal");
     modal.style.display = "none";
-  }
-
-  loginSubmit = () => {
-    var modal = document.getElementById("myModal");
-
-    //first time this logic will work
-    if (this.inputUserName.value && this.inputPassword.value && this.state.isLogin === false) {
-      modal.style.display = "none";
-      this.setState({
-        cardTotal: this.state.cardTotal + 1,
-        isLogin: true,
-        cartItems: this.tempCartItems
-      })
-
-
-    } else if (this.inputUserName.value && this.inputPassword.value && this.state.isLogin === true) {
-      // if(this.state.cartItems === this.tempCartItems){
-        this.setState({
-          itemError: true
-        })
-      // }
-
-    }
-
-    else {
-      this.setState({
-        showError: true
-      })
-    }
-
-    // this.tempCartItems = "";
   }
 
   getUserName = (e) => {
@@ -201,10 +154,83 @@ class App extends React.Component {
     this.userPassword = e.target.value;
   }
 
-  render() {
-    // console.log("cart", this.state.cartItems)
-    // console.log("islogin", this.state.isLogin)
+  loginSubmit = () => {
+    var modal = document.getElementById("myModal");
 
+    if (this.state.isLogin === false && this.userName && this.userPassword) {
+      this.setState({
+        isLogin: true,
+      })
+      alert("login successfull")
+      modal.style.display = "none";
+    }
+
+    if (this.cartItems.length == 0 && this.userName && this.userPassword) {
+      this.saveUserName = this.userName;
+      this.saveUserPassword = this.userPassword;
+      this.tempCartItems.map((id) => {
+        this.cartItems.push(id);
+        this.setState({
+          isLogin: true,
+        })
+        alert("login successfull")
+        modal.style.display = "none";
+      })
+    }
+    if (this.userName == "" && this.userPassword == "") {
+      this.setState({
+        showError: true
+      })
+    }
+  }
+
+  updateCart = (id) => {
+    this.setState({
+      cardTotal: this.state.cardTotal - 1
+    })
+  }
+
+  handleLanguage = (id) => {
+    this.tempCartItems = []
+    this.tempCartItems.push(id);
+
+    var modal = document.getElementById("myModal");
+
+    if (this.cartItems.length == 0 && this.state.isLogin === true) {
+      this.tempCartItems.map((id) => {
+        this.cartItems.push(id);
+        this.setState({
+          cardTotal: this.state.cardTotal + 1
+        })
+        alert("Item added to the card");
+        modal.style.display = "none";
+      })
+    }
+    else if (this.cartItems.length && this.state.isLogin === true) {
+      this.cartItems.map((id) => {
+        this.tempCartItems.map((item) => {
+          if (this.cartItems.includes(item)) {
+            this.setState({
+              showRemoveButton: true
+            })
+            // alert("Item already added in cart")
+          }
+          else {
+            this.tempCartItems.map((id) => {
+              this.cartItems.push(id);
+              this.setState({
+                cardTotal: this.state.cardTotal + 1
+              })
+              alert("Item added to the card");
+              modal.style.display = "none";
+            })
+          }
+        })
+      })
+    }
+  }
+
+  render() {
     return (
       <React.Fragment>
         <input
@@ -221,7 +247,6 @@ class App extends React.Component {
 
         <span className="price">Cart <i className="fa fa-shopping-cart"></i> <b>{this.state.cardTotal}</b></span>
 
-
         <div className="container">
           <div className="data-container">
             {this.state.showData && this.state.showData.length
@@ -230,10 +255,15 @@ class App extends React.Component {
                 {this.state.showData && this.state.showData.map((item, key) => {
                   return (
                     <ShowDetails
+                      onSelectLanguage={this.handleLanguage}
                       item={item}
                       openModal={this.openModal}
                       sortedDate={this.state.sortedDate}
-                      cartItems={this.state.cartItems}
+                      cartItems={this.cartItems}
+                      isLogin={this.state.isLogin}
+                      cardTotal={this.state.cardTotal}
+                      showRemoveButton={this.state.showRemoveButton}
+                      updateCart={this.updateCart}
                     />
                   )
                 })}
@@ -241,10 +271,15 @@ class App extends React.Component {
               :
               <>
                 <ShowDetails
+                  onSelectLanguage={this.handleLanguage}
                   item={this.state.showData}
                   openModal={this.openModal}
                   sortedDate={this.state.sortedDate}
-                  cartItems={this.state.cartItems}
+                  cartItems={this.cartItems}
+                  isLogin={this.state.isLogin}
+                  cardTotal={this.state.cardTotal}
+                  showRemoveButton={this.state.showRemoveButton}
+                  updateCart={this.updateCart}
                 />
               </>
             }

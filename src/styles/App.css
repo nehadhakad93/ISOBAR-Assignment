@@ -63,12 +63,19 @@
         height: 75px;
     }
 
-    .showButton{
+    .showAddButton{
       display: block;
     }
-    .button {
+    .hideAddButton {
       display: none;
   }
+
+  .showRemoveButton{
+    display: block;
+  }
+  .hideRemoveButton {
+    display: none;
+}
 
   .modal {
     display: none; /* Hidden by default */
