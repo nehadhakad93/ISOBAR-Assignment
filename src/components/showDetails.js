@@ -31,15 +31,17 @@ class ShowDetails extends React.Component {
 
   add = (item, id) => {
     if (this.props.isLogin == true) {
+      this.props.openMiniCartModal(item,id)
       this.props.onSelectLanguage(id);
     } else {
       this.props.openModal(item, id);
     }
   }
 
-  removeItem = (removeID) => {
+  removeItem = (item,removeID) => {
     this.props.cartItems.map((id) => {
       if (id == removeID) {
+        this.props.miniCartItems.pop(item);
         this.props.cartItems.pop(removeID);
         this.props.updateCart(removeID);
         this.setState({
@@ -68,7 +70,7 @@ class ShowDetails extends React.Component {
           <span>Author - {item && item.author}</span>
           <span>Duration - {item && item.duration}</span>
           <button id="myBtn" onClick={() => this.add(item, item.id)} className={this.state.showButton == true ? "showAddButton" : "hideAddButton"}>Add</button>
-          <button id="myBtnRmv" onClick={() => this.removeItem(item.id)} className={this.state.removeButton == true ? "showRemoveButton" : "hideRemoveButton"}>Remove</button>
+          <button id="myBtnRmv" onClick={() => this.removeItem(item, item.id)} className={this.state.removeButton == true ? "showRemoveButton" : "hideRemoveButton"}>Remove</button>
 
         </div>
       </>

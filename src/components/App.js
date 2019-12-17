@@ -65,10 +65,35 @@ class App extends React.Component {
     this.userPassword = "";
     this.cartItems = []
     this.tempCartItems = []
+    this.miniCartItems = []
+
   }
+
+  // handleInputChange = event => {
+  //   let tempQuery = event.target.value;
+  //   this.searchData();
+  //   console.log("tempQuery", tempQuery);
+  //   this.query = tempQuery;
+  //   if (!this.query) {
+  //     this.setState({
+  //       showData: data[0].lessons,
+  //       sortedDate: false
+  //     })
+  //   }
+  // };
 
   handleInputChange = event => {
     let tempQuery = event.target.value;
+    if (this.state.showData && this.state.showData.length && tempQuery.length >= 2) {
+      this.state.showData && this.state.showData.map((item) => {
+        if (item.name.toLowerCase().includes(tempQuery.toLowerCase())) {
+          this.setState({
+            showData: item
+          })
+        }
+      })
+    }
+
     this.query = tempQuery;
     if (!this.query) {
       this.setState({
@@ -78,27 +103,28 @@ class App extends React.Component {
     }
   };
 
-  searchData = () => {
-    if (this.state.showData && this.state.showData.length) {
-      this.state.showData && this.state.showData.map((item) => {
-        if (item.name == this.query) {
-          this.setState({
-            showData: item,
+  // searchData = () => {
+  //   console.log("searchData is called");
+  //   if (this.state.showData && this.state.showData.length) {
+  //     this.state.showData && this.state.showData.map((item) => {
+  //       if (item.name == this.query) {
+  //         this.setState({
+  //           showData: item,
 
-          })
-        }
-      })
-    } else if (!this.query) {
-      this.setState({
-        showData: data[0].lessons
-      })
-    }
-    else {
-      this.setState({
-        showData: this.state.showData
-      })
-    }
-  }
+  //         })
+  //       }
+  //     })
+  //   } else if (!this.query) {
+  //     this.setState({
+  //       showData: data[0].lessons
+  //     })
+  //   }
+  //   else {
+  //     this.setState({
+  //       showData: this.state.showData
+  //     })
+  //   }
+  // }
 
   sortFunctionality = (event) => {
     let selectedValue = event.target.value;
@@ -107,6 +133,7 @@ class App extends React.Component {
       var yy = [];
       this.state.showData.map((item) => {
         let filteredArr = {};
+        filteredArr.id = item.id;
         filteredArr.name = item.name;
         filteredArr.description = item.description;
         filteredArr.author = item.author;
@@ -127,6 +154,7 @@ class App extends React.Component {
 
   openModal = (item, id) => {
     var modal = document.getElementById("myModal");
+
     modal.style.display = "block";
     this.inputUserName.value = "";
     this.inputPassword.value = "";
@@ -144,6 +172,13 @@ class App extends React.Component {
   closeModal = () => {
     var modal = document.getElementById("myModal");
     modal.style.display = "none";
+  }
+
+  openMiniCartModal = (item, id) => {
+    this.miniCartItems.push(item)
+    var modal = document.getElementById("cartModal");
+    modal.style.display = "block";
+
   }
 
   getUserName = (e) => {
@@ -188,6 +223,9 @@ class App extends React.Component {
     this.setState({
       cardTotal: this.state.cardTotal - 1
     })
+    if(this.state.cardTotal === 1){
+    document.getElementById("cartModal").style.display ="none";
+    }
   }
 
   handleLanguage = (id) => {
@@ -238,14 +276,55 @@ class App extends React.Component {
           placeholder="Search for..."
           onChange={this.handleInputChange}
         />
-        <button onClick={this.searchData}>Search</button>
+        {/* <button onClick={this.searchData}>Search</button> */}
 
         <select className="mdb-select md-form" onChange={this.sortFunctionality}>
           <option value="" disabled selected>Sort</option>
           <option value="Date" >Date</option>
         </select>
 
-        <span className="price">Cart <i className="fa fa-shopping-cart"></i> <b>{this.state.cardTotal}</b></span>
+        {/* <span className="price">Cart <i className="fa fa-shopping-cart"></i> <b>{this.state.cardTotal}</b></span> */}
+
+
+        {/* {this.state.cardTotal === 0 ? "" :
+          <div id="cartModal" className="miniCartModal">
+            <div className="modal-content-miniCart">
+              <span>Mini Cart <i className="fa fa-shopping-cart"></i> <b>{this.state.cardTotal}</b></span>
+              <ul>
+                {this.miniCartItems && this.miniCartItems.map((item) => {
+                  return (
+                    <>
+                      <div className="miniCart-image"></div>
+                      <img src={item && item.image} alt={item && item.image} />
+                      <span>Name - {item && item.name}</span>
+                      <span>Author - {item && item.author}</span>
+                      <span>Duration - {item && item.duration}</span>
+                    </>
+                  )
+                })}
+              </ul>
+            </div>
+          </div>
+        } */}
+
+         <div id="cartModal" className="miniCartModal">
+          <div className="modal-content-miniCart">
+            <span>Mini Cart <i className="fa fa-shopping-cart"></i> <b>{this.state.cardTotal}</b></span>  
+            <ul>
+              {this.miniCartItems && this.miniCartItems.map((item) => {
+                return (
+                  <>
+                  <div className="miniCart-image"></div>
+                  <img src={item && item.image} alt={item && item.image} />
+                  <span>Name - {item && item.name}</span>
+                  <span>Author - {item && item.author}</span>
+                  <span>Duration - {item && item.duration}</span>
+                  </>
+                )
+              })}
+              </ul>
+          </div>
+        </div> 
 
         <div className="container">
           <div className="data-container">
@@ -264,6 +343,8 @@ class App extends React.Component {
                       cardTotal={this.state.cardTotal}
                       showRemoveButton={this.state.showRemoveButton}
                       updateCart={this.updateCart}
+                      openMiniCartModal={this.openMiniCartModal}
+                      miniCartItems={this.miniCartItems}
                     />
                   )
                 })}
@@ -280,6 +361,8 @@ class App extends React.Component {
                   cardTotal={this.state.cardTotal}
                   showRemoveButton={this.state.showRemoveButton}
                   updateCart={this.updateCart}
+                  openMiniCartModal={this.openMiniCartModal}
+                  miniCartItems={this.miniCartItems}
                 />
               </>
             }
@@ -299,6 +382,7 @@ class App extends React.Component {
             <button onClick={this.loginSubmit} className="loginButton" type="submit">Login</button>
           </div>
         </div>
+
 
       </React.Fragment >
     )
