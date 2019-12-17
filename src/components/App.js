@@ -150,6 +150,12 @@ class App extends React.Component {
         showData: sortedActivities
       })
     }
+    if(selectedValue == "Duration" && this.state.showData && this.state.showData.length){
+    var temp = this.state.showData.sort((a,b) => a.duration.localeCompare(b.duration))
+    this.setState({
+      showData: temp
+    })
+    }
   }
 
   openModal = (item, id) => {
@@ -281,6 +287,7 @@ class App extends React.Component {
         <select className="mdb-select md-form" onChange={this.sortFunctionality}>
           <option value="" disabled selected>Sort</option>
           <option value="Date" >Date</option>
+          <option value="Duration">Duration</option>
         </select>
 
         {/* <span className="price">Cart <i className="fa fa-shopping-cart"></i> <b>{this.state.cardTotal}</b></span> */}
